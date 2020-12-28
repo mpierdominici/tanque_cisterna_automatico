@@ -9,12 +9,15 @@
 #include "Fsm.h"
 #include <CircularBuffer.h>
 
-#define DEBUGG
+//#define DEBUGG
 #define SEC_TO_MILISEC(x) ((x)*1000) 
 //*********Pines***********
-#define PIN_CONEXION_RED D2
-#define PIN_CISTERNA_VACIA D3
-#define PIN_BOMBA D4
+#define PIN_BOMBA D2
+#define PIN_REPOSO D6
+#define PIN_BOMBEANDO D5
+#define PIN_NOAGUA D4
+#define PIN_NONET D7
+
 #define PIN_NIVEL A0
 //*********end Pines*******
 
@@ -39,39 +42,57 @@ typedef enum
 
 CircularBuffer<eventos_t,20> eventList;
 //******  Creo los estados y la maquina de estados
-State stateReposo(&onEnterReposo, NULL, NULL);//(enter,during,exit)
-State stateSinAgua(&onSinAgua, NULL, NULL);
-State stateBombeando(&onBombeando, NULL, NULL);
-State stateNoNet(&onNoNet, NULL, NULL);
+State stateReposo(&onEnterReposo, NULL,&onExitReposo);//(enter,during,exit)
+State stateSinAgua(&onSinAgua, NULL,&onExitSinAgua);
+State stateBombeando(&onBombeando, NULL,&onExitBombeando);
+State stateNoNet(&onNoNet, NULL,&onExitNoNet);
 Fsm fsm(&stateReposo);
 estados_t currentState=REPOSO;
 //***************************************************
 
 void onEnterReposo(){
   currentState=REPOSO;
+  digitalWrite(PIN_REPOSO,HIGH);
   debug_message("Estoi en reposo",true);
 }
 void onSinAgua(){
   currentState=SIN_AGUA;
+  digitalWrite(PIN_NOAGUA,HIGH);
   debug_message("Estoi en sin agua",true);
 }
 void onBombeando(){
   currentState=BOMBEANDO;
+  digitalWrite(PIN_BOMBEANDO,HIGH);
   debug_message("Estoi en bombeando",true);
 }
 void onNoNet(){
   currentState=NO_NET;
+  digitalWrite(PIN_NONET,HIGH);
   debug_message("Estoi en no net",true);
 }
 
+void onExitReposo(){
+  digitalWrite(PIN_REPOSO,LOW);
+}
+void onExitSinAgua(){
+  digitalWrite(PIN_NOAGUA,LOW);
+}
+void onExitBombeando(){
+  digitalWrite(PIN_BOMBEANDO,LOW);
+}
+void onExitNoNet(){
+  digitalWrite(PIN_NONET,LOW);
+}
 
 void transicionEncenderBomba()
 {
   debug_message("Prendo la bomba",true);
+  digitalWrite(PIN_BOMBA,HIGH);
 }
 void transicionApagarBomba()
 {
   debug_message("Apago la bomba",true);
+  digitalWrite(PIN_BOMBA,LOW);
 }
 
 void transicionNoAgua()
@@ -116,7 +137,7 @@ class myTimer
   void resetTimer(void);
     
 };
-myTimer watchDogTimer(90);//pongo el watch dog en 60 seugndos
+myTimer watchDogTimer(90);//pongo el watch dog en 90 seugndos
 
 
 class waterBomb
@@ -251,6 +272,12 @@ void setup() {
   Serial.begin(9600);
   setUpWifi(ssid,pass);
   setUpMqtt();
+  pinMode(PIN_BOMBA,OUTPUT);
+  pinMode(PIN_REPOSO,OUTPUT);
+  pinMode(PIN_BOMBEANDO,OUTPUT);
+  pinMode(PIN_NOAGUA,OUTPUT);
+  pinMode(PIN_NONET,OUTPUT);
+
 //********Armado de las trancisiciones de la fsm *************************************************
   fsm.add_transition(&stateReposo, &stateBombeando,ENCENDER_BOMBA,&transicionEncenderBomba);
   fsm.add_transition(&stateBombeando, &stateReposo,TIME_OUT,&transicionApagarBomba);
