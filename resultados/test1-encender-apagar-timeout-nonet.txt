@@ -1,0 +1,103 @@
+…Ó 
+ 
+Conectandose a: WIFI Pier
+....... 
+Coneccion realizada
+La ip es: 192.168.0.114
+Estoi en reposo
+Prendo led net error
+Estoi en no net
+Intentando conectar al servidor MQTT
+conectado
+Apago led net error
+Estoi en reposo
+Llego un mensage, topic:cisterna/bomba/off, payload : ss
+ff
+hay evento
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+
+ff
+hay evento
+Prendo la bomba
+Estoi en bombeando
+Llego un mensage, topic:cisterna/bomba/off, payload : ss
+ff
+hay evento
+Apago la bomba
+Estoi en reposo
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+
+ff
+hay evento
+Prendo la bomba
+Estoi en bombeando
+Llego un mensage, topic:cisterna/bomba/off, payload : ss
+ff
+hay evento
+Apago la bomba
+Estoi en reposo
+Llego un mensage, topic:cisterna/watchdog, payload : ss
+
+ff
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+
+ff
+hay evento
+Prendo la bomba
+Estoi en bombeando
+Apago la bomba
+Prendo led net error
+Estoi en no net
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+intentando conetarse al broker
+Intentando conectar al servidor MQTT
+conectado
+Apago led net error
+Estoi en reposo
+Llego un mensage, topic:cisterna/watchdog, payload : ss
+off
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+off
+hay evento
+Prendo la bomba
+Estoi en bombeando
+Llego un mensage, topic:cisterna/watchdog, payload : ss
+off
+hay evento
+Apago la bomba
+Estoi en reposo
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+off
+hay evento
+Prendo la bomba
+Estoi en bombeando
+hay evento
+Apago la bomba
+Estoi en reposo
+Llego un mensage, topic:cisterna/watchdog, payload : ss
+off
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+off
+hay evento
+Prendo la bomba
+Estoi en bombeando
+Llego un mensage, topic:cisterna/watchdog, payload : ss
+off
+Llego un mensage, topic:cisterna/bomba/on, payload : ss
+off
+hay evento
+Llego un mensage, topic:cisterna/bomba/off, payload : ss
+ff
+hay evento
+Apago la bomba
+Estoi en reposo
