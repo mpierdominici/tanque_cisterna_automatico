@@ -18,7 +18,7 @@
 #define PIN_NOAGUA D4
 #define PIN_NONET D7
 
-#define PIN_NIVEL A0
+#define PIN_NIVEL D8
 //*********end Pines*******
 
 //****Eventos y estados de la fsm
@@ -40,6 +40,8 @@ typedef enum
     RESET
 } eventos_t;
 
+char stateString[4][10]={"Reposo","Sin Agua","Bombeando","No net"};
+
 CircularBuffer<eventos_t,20> eventList;
 //******  Creo los estados y la maquina de estados
 State stateReposo(&onEnterReposo, NULL,&onExitReposo);//(enter,during,exit)
@@ -49,7 +51,7 @@ State stateNoNet(&onNoNet, NULL,&onExitNoNet);
 Fsm fsm(&stateReposo);
 estados_t currentState=REPOSO;
 //***************************************************
-
+// mqtt_client.publish("power/vrms",temData.c_str());
 void onEnterReposo(){
   currentState=REPOSO;
   digitalWrite(PIN_REPOSO,HIGH);
@@ -153,7 +155,7 @@ class waterBomb
 
 
 
-
+myTimer time2checkBomba(2);
 char * ssid ="WIFI Pier";
 char * pass ="pagle736pagle";
 unsigned int mqttPort=1883;
@@ -234,8 +236,13 @@ void callback(char* topic, byte* payload, unsigned int length)
    
   }else if(!strcmp(topic,"cisterna/bomba/on")){
     eventList.push(ENCENDER_BOMBA);
+    time2checkBomba.resetTimer();
   }else if(!strcmp(topic,"cisterna/bomba/off")){
     eventList.push(APAGAR_BOMBA);
+  }else if(!strcmp(topic,"cisterna/state")){
+    mqtt_client.publish("cisterna/state/res",stateString[currentState]);//devuelvo el estado actual
+  }else if(!strcmp(topic,"cisterna/reset")){
+    eventList.push(RESET);
   }
  
 }
@@ -255,6 +262,7 @@ void reconnect()
             mqtt_client.subscribe("cisterna/bomba/on");
             mqtt_client.subscribe("cisterna/bomba/off");
             mqtt_client.subscribe("cisterna/state");
+            mqtt_client.subscribe("cisterna/reset");
            
             
 
@@ -277,6 +285,7 @@ void setup() {
   pinMode(PIN_BOMBEANDO,OUTPUT);
   pinMode(PIN_NOAGUA,OUTPUT);
   pinMode(PIN_NONET,OUTPUT);
+  pinMode(PIN_NIVEL,INPUT);
 
 //********Armado de las trancisiciones de la fsm *************************************************
   fsm.add_transition(&stateReposo, &stateBombeando,ENCENDER_BOMBA,&transicionEncenderBomba);
@@ -294,7 +303,7 @@ void setup() {
 }
 
 
-
+int bombCounterEvent=0;
 void loop() {
   if (!mqtt_client.connected()) 
   {
@@ -308,11 +317,23 @@ void loop() {
   fsm.run_machine();
  }
  mqtt_client.loop(); 
+ 
  if(currentState==BOMBEANDO){
- if(watchDogTimer.timeOver()){
-  eventList.push(TIME_OUT);
-  
- }
+    if(watchDogTimer.timeOver()){
+        eventList.push(TIME_OUT);
+    }
+    if(time2checkBomba.timeOver()){
+      bombCounterEvent=0;
+      time2checkBomba. resetTimer();
+      for(int i=0;i<10;i++){
+        if(digitalRead(PIN_NIVEL)){
+          bombCounterEvent++;
+        }
+      }
+      if(bombCounterEvent==0){
+        eventList.push(NO_AGUA);
+      }
+    }
  }
  if(!eventList.isEmpty()){
   debug_message("hay evento",true);
