@@ -9,7 +9,7 @@
 #include "Fsm.h"
 #include <CircularBuffer.h>
 
-//#define DEBUGG
+#define DEBUGG
 #define SEC_TO_MILISEC(x) ((x)*1000) 
 //*********Pines***********
 #define PIN_BOMBA D2
@@ -19,6 +19,9 @@
 #define PIN_NONET D7
 
 #define PIN_NIVEL D8
+
+#define SAMPLE_NUMBER 30
+#define SAMPLE_TIME 10 //timepo en ms
 //*********end Pines*******
 
 //****Eventos y estados de la fsm
@@ -325,10 +328,11 @@ void loop() {
     if(time2checkBomba.timeOver()){
       bombCounterEvent=0;
       time2checkBomba. resetTimer();
-      for(int i=0;i<10;i++){
+      for(int i=0;i<SAMPLE_NUMBER;i++){
         if(digitalRead(PIN_NIVEL)){
           bombCounterEvent++;
         }
+        delay(SAMPLE_TIME);
       }
       if(bombCounterEvent==0){
         eventList.push(NO_AGUA);
