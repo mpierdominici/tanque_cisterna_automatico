@@ -9,6 +9,7 @@
 #include "Fsm.h"
 #include <CircularBuffer.h>
 #include  "pin.h"
+#include "FreqCountESP.h"
 
 #define ESP_32_S3_MNP
 #define DEBUGG
@@ -20,10 +21,12 @@
 #define PIN_NOAGUA ANALOG_CH4
 #define PIN_NONET ANALOG_CH5
 
+#define PIN_CAUDALIMETRO DIGITAL_CH2
 #define PIN_NIVEL DIGITAL_CH1
 
 #define SAMPLE_NUMBER 30
 #define SAMPLE_TIME 10 //timepo en ms
+#define SAMPLE_TIME_FLOW_METER 1000//tiempo en ms
 //*********end Pines*******
 
 //****Eventos y estados de la fsm
@@ -314,6 +317,9 @@ void setup() {
   fsm.add_transition(&stateNoNet,&stateReposo,RESET,&transicionNoNet2Reposo);
   fsm.add_transition(&stateReposo, &stateNoNet,NET_ERROR,&transicionReposo2NoNet);
 //************************************************************************************************
+
+FreqCountESP.begin(PIN_CAUDALIMETRO, SAMPLE_TIME_FLOW_METER);//inicializo la medicion de frecuencia del caudalimetro
+
   fsm.run_machine();
 }
 
@@ -357,6 +363,13 @@ void loop() {
   fsm.run_machine();
   
  }
+
+ if (FreqCountESP.available())
+  {
+    uint32_t frequency = FreqCountESP.read();
+    
+    Serial.println("Freq:" + String(frequency));
+  }
  
 
 }
